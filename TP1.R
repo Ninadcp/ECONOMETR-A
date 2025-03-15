@@ -250,9 +250,7 @@ ggsave("plot21.png")
 #----Ejercicio 2 b) 
 
 
-
 df_list4 <- vector("list", num_datasets)
-
 
 
 for (i in 1:50) {
@@ -291,7 +289,7 @@ colnames(coef_mat4) <- c("Beta_0", "Beta_1", "Beta_3")
 
 for (i in 1:50)
 {
-  modelo <- lm(y ~ x1 + x3, data = df_list2[[i]]) 
+  modelo <- lm(y ~ x1 + x3, data = df_list4[[i]]) 
   coef_mat4[i, ] <- coef(modelo)
   
 }
