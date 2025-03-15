@@ -6,7 +6,8 @@ rm(list = ls())
 
 # Set directory
 getwd() 
-setwd("/Users/ninadicostanzopereira/Desktop/CORE/ECON/tp1")
+#setwd("/Users/ninadicostanzopereira/Desktop/CORE/ECON/tp1") #mi computadora
+setwd("/Users/ninadicostanzopereira/Desktop/ECONOMETR-A") #GIT
 dir()
 #install.packages("xtable")
 #install.packages("openxlsx")
@@ -93,9 +94,36 @@ ggplot(df_coef, aes(x = Beta_1, y = Beta_2)) +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
   labs(title = "Estimaciones: β1 vs β2", x = "β1", y = "β2") + #NINACAMBIÁ ESTO
   theme_minimal()
+ggsave("plot4_1.png")
+
+#segundo gráfico beta_1 beta_3
+
 ggplot(df_coef, aes(x = Beta_1, y = Beta_3)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
   labs(title = "Estimaciones: β1 vs β3", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
   theme_minimal()
+ggsave("plot4_2.png")
+
+#_______________________-5_________________________________
+
+df_list5 <- vector("list", num_datasets)
+
+for (i in 1:50) {
+  set.seed(i)
+  
+  n <- 100
+  
+  
+  u <- rnorm(n, mean = 0, sd = sqrt(1100))
+  
+  y <- b_0 + b_1 * x1 + b_2 * x2 + b_3 * x3 + u
+  
+  #creamos los df
+  df_list5[[i]] <- data.frame(y, x1, x2, x3, u)   
+}  
+
+head(df_list[[1]])
+
+
 
