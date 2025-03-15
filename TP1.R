@@ -98,18 +98,18 @@ head(coef_df)
 ggplot(df_coef, aes(x = Beta_1, y = Beta_2)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β2", x = "β1", y = "β2") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β2 primera estimación", x = "β1", y = "β2") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot4_1.png")
+ggsave("plot1_4_1.png")
 
 #segundo gráfico beta_1 beta_3
 
 ggplot(df_coef, aes(x = Beta_1, y = Beta_3)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β3", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β3 primera estimación", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot4_2.png")
+ggsave("plot1_4_2.png")
 
 #_______________________5_________________________________
 
@@ -172,18 +172,18 @@ head(coef_df2)
 ggplot(coef_df2, aes(x = Beta_1, y = Beta_2)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β2", x = "β1", y = "β2") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β2 segunda estimación", x = "β1", y = "β2") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot6_1.png")
+ggsave("plot1_6_1.png")
 
 #segundo gráfico beta_1 beta_3
 
 ggplot(coef_df2, aes(x = Beta_1, y = Beta_3)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β3", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β3 segunda estimación", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot6_2.png")
+ggsave("plot1_6_2.png")
 
 
 #Ejercicio 2--------------------------------
@@ -242,9 +242,9 @@ head(coef_df3)
 ggplot(coef_df3, aes(x = Beta_1, y = Beta_3)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β3", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β3 tercera estimación", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot21.png")
+ggsave("plot2_1.png")
 
 
 #----Ejercicio 2 b) 
@@ -309,7 +309,7 @@ head(coef_df4)
 ggplot(coef_df4, aes(x = Beta_1, y = Beta_3)) +
   geom_point(color = "blue") +
   geom_smooth(method = "lm", color = "red", se = FALSE) +
-  labs(title = "Estimaciones: β1 vs β3", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
+  labs(title = "β1 vs β3 cuarta estimación", x = "β1", y = "β3") + #NINACAMBIÁ ESTO
   theme_minimal()
-ggsave("plot2ult.png")
+ggsave("plot2_2.png")
 
