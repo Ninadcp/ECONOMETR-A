@@ -313,3 +313,32 @@ ggplot(coef_df4, aes(x = Beta_1, y = Beta_3)) +
   theme_minimal()
 ggsave("plot2_2.png")
 
+#varianzas dE los betas 
+
+#PRIMERA ESTIMACIÓN
+coef_df <- read.xlsx("primera_estimacion.xlsx")
+varianzas1 <- apply(coef_df, 2, var)
+df_varianzas1 <- data.frame(Parametro = colnames(coef_df), Varianza = varianzas1)
+print(df_varianzas1)
+write.xlsx(df_varianzas1, "varianzas_primera_estimacion.xlsx", overwrite = TRUE)
+
+#SEGUNDA ESTIMACIÓN
+coef_df2 <- read.xlsx("segunda_estimacion.xlsx")
+varianzas2 <- apply(coef_df2, 2, var)
+df_varianzas2 <- data.frame(Parametro = colnames(coef_df), Varianza = varianzas2)
+print(df_varianzas2)
+write.xlsx(df_varianzas2, "varianzas_segunda_estimacion.xlsx", overwrite = TRUE)
+
+#TERCERA ESTIMACIÓN
+coef_df3 <- read.xlsx("tercera_estimacion.xlsx")
+varianzas3 <- apply(coef_df3, 2, var)
+df_varianzas3 <- data.frame(Parametro = colnames(coef_df3), Varianza = varianzas3)
+print(df_varianzas3)
+write.xlsx(df_varianzas3, "varianzas_tercera_estimacion.xlsx", overwrite = TRUE)
+
+#CUARTA ESTIMACIÓN
+coef_df4 <- read.xlsx("cuarta_estimacion.xlsx")
+varianzas4 <- apply(coef_df4, 2, var)
+df_varianzas4 <- data.frame(Parametro = colnames(coef_df4), Varianza = varianzas4)
+print(df_varianzas4)
+write.xlsx(df_varianzas4, "varianzas_cuarta_estimacion.xlsx", overwrite = TRUE)
