@@ -8,7 +8,7 @@ rm(list = ls())
 getwd() 
 #setwd("/Users/ninadicostanzopereira/Desktop/CORE/ECON/tp1") #mi computadora
 #setwd("/Users/ninadicostanzopereira/Desktop/ECONOMETR-A") #GIT 
-setwd("C:/Users/sebib/Documents/GitHub/ECONOMETR-A")
+#setwd("C:/Users/sebib/Documents/GitHub/ECONOMETR-A")
 
 
 
@@ -61,7 +61,7 @@ for (i in 1:50)
   cor_list[[i]] <- cor(df_list[[i]][, c("x1", "x2", "x3")])
 }
 #nos quedamos con la 22 y exportamos a .csv y latex:
-corr_matrix <- cor(cor_list[[22]])
+corr_matrix <- cor_list[[22]]
 write.csv(corr_matrix, "correlaciontp1.csv", row.names = TRUE)
 
 cor_table <- xtable(corr_matrix, caption = "Matriz de correlación entre x1, x2 y x3")
