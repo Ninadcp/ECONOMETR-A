@@ -1,0 +1,40 @@
+
+Call:
+lm(formula = lcrmrte ~ lprbarr + lprbconv + lprbpris + lavgsen + 
+    lpolpc + ldensity + ltaxpc + lpctmin + lwcon + lwtuc + lwtrd + 
+    lwfir + lwser + lwmfg + lwfed + lwsta + lwloc + lmix + lpctymle, 
+    data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.41318 -0.13614 -0.00543  0.13589  1.30655 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -2.207527   0.591701  -3.731 0.000209 ***
+lprbarr     -0.580943   0.034037 -17.068  < 2e-16 ***
+lprbconv    -0.447834   0.022360 -20.028  < 2e-16 ***
+lprbpris    -0.121653   0.050425  -2.413 0.016136 *  
+lavgsen     -0.061669   0.039197  -1.573 0.116164    
+lpolpc       0.336497   0.024181  13.916  < 2e-16 ***
+ldensity     0.245853   0.022121  11.114  < 2e-16 ***
+ltaxpc       0.006313   0.044360   0.142 0.886880    
+lpctmin      0.236690   0.012693  18.647  < 2e-16 ***
+lwcon        0.062824   0.056330   1.115 0.265164    
+lwtuc        0.009343   0.030147   0.310 0.756732    
+lwtrd       -0.022280   0.063964  -0.348 0.727715    
+lwfir       -0.006726   0.046443  -0.145 0.884900    
+lwser       -0.037764   0.032209  -1.172 0.241468    
+lwmfg       -0.080339   0.056741  -1.416 0.157319    
+lwfed        0.097378   0.116851   0.833 0.404974    
+lwsta       -0.281815   0.083741  -3.365 0.000813 ***
+lwloc        0.076281   0.120578   0.633 0.527211    
+lmix         0.045837   0.019843   2.310 0.021223 *  
+lpctymle    -0.064230   0.065174  -0.986 0.324764    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.2635 on 610 degrees of freedom
+Multiple R-squared:  0.7948,	Adjusted R-squared:  0.7884 
+F-statistic: 124.3 on 19 and 610 DF,  p-value: < 2.2e-16
+
