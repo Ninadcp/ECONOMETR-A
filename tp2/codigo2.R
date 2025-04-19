@@ -33,6 +33,26 @@ modelo_fe <- plm(lcrmrte ~ lprbarr + lprbconv + lprbpris + lavgsen + lpolpc + ld
 summary(modelo_fe)
 stargazer(modelo_fe, type = "latex", out = "modelofe.tex") #guarda en .txt para latex
 
+
+hausman_test <- phtest(modelo_fe,modelo)
+# H0: FE es consistente, MCO es consistente y eficiente
+# HA: FE es consistente, MCO es inconsistente
+
+hausman_table <- data.frame(
+  Estadístico = round(hausman_test$statistic, 3),
+  Grados_libertad = hausman_test$parameter,
+  Valor_p = round(hausman_test$p.value, 4),
+  row.names = "Test de Hausman"
+)
+
+
+stargazer(hausman_table,
+          summary = FALSE,
+          type = "latex",
+          title = "Test de Hausman",
+          label = "tab:hausman",
+          out = "hausman_test.tex")  
+
 #-----------------------------------d------------------------------------------
 #restar medias, sacamos el promedio histórico x estado.
 #con log 
