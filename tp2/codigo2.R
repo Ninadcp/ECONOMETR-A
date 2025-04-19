@@ -63,6 +63,7 @@ stargazer(modelo, type = "latex", out = "modelofwl.tex") #guarda en .txt para la
 #-----------------------------------e------------------------------------------
 modelofwl2 <- lm(lcrmrte ~ lprbarr_n + lprbconv_n + lprbpris_n + lavgsen_n + lpolpc_n + ldensity_n + ltaxpc_n + lpctmin_n + lwcon_n + lwtuc_n + lwtrd_n + lwfir_n + lwser_n + lwmfg_n + lwfed_n + lwsta_n + lwloc_n + lmix_n + lpctymle_n + urban_n + central_n + west_n - 1, data = df)
 summary(modelofwl2)
+
 stargazer(modelo, type = "latex", out = "modelofwl2.tex") #guarda en .txt para latex
 
 
