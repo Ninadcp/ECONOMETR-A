@@ -14,7 +14,9 @@ library(summarytools)
 library(rlang)
 library(ggplot2)
 
-setwd("/Users/ninadicostanzopereira/Desktop/ECONOMETR-A/tp3/")
+#setwd("/Users/ninadicostanzopereira/Desktop/ECONOMETR-A/tp3/")
+
+setwd("C:/Users/CARLOS/OneDrive/Escritorio/R/TP3")
 
 #importo la base d datos
 df <- read_dta('QOB.dta')
@@ -95,13 +97,27 @@ stargazer(educ_iv_reg,
 
 #---------------------f--------------------------------------------------------------------
 # Filtrar hombres nacidos entre 1930 y 1939
-data_filtrado <- df %>%
-  filter(yob >= 30, yob <= 39)
 
-Modelo <- lm(educ ~ Z1+ Z2 + Z3 + ageq + ageqsq + race + married + smsa, data = data_filtrado)
+Modelofirst <- lm(educ ~ Z1 + Z2 + Z3 + ageq + ageqsq + race + married + smsa, data = data_filtrado)
 
 # Ver resultados
-summary(Modelo)
+summary(Modelofirst)
+data_filtrado$educ_hat <- Modelofirst$fitted.values
+
+stargazer(Modelo, type = "latex",
+          title = "Regresión por MCO: Educación por mes de nacimiento",
+          dep.var.labels = "Años de educación",
+          covariate.labels = c("Primer Trimestre (dummy)", "Segundo Trimestre (dummy)", "Tercer Trimestre (dummy)", "Edad (trimestres)", "Edad al cuadrado",
+                               "Raza (dummy)", "Casado (dummy)", "Ciudad central (dummy)"),
+          digits = 3,
+          out = "first_educacion.tex")
+
+#---------------------h--------------------------------------------------------------------
+
+
+
+Modelosecond <- lm(lwage ~ educ_hat + ageq + ageqsq + race + married + smsa, data = data_filtrado)
+ summary(Modelosecond)
 
 stargazer(Modelo, type = "latex",
           title = "Regresión por MCO: Retornos a la educación",
@@ -109,4 +125,4 @@ stargazer(Modelo, type = "latex",
           covariate.labels = c("Años de educación", "Edad (trimestres)", "Edad al cuadrado",
                                "Raza (dummy)", "Casado (dummy)", "Ciudad central (dummy)"),
           digits = 3,
-          out = "mco_educacion.tex")
+          out = "second_educacion.tex")
