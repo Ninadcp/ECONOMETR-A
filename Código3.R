@@ -21,27 +21,18 @@ setwd("C:/Users/CARLOS/OneDrive/Escritorio/R/TP3")
 #importo la base d datos
 df <- read_dta('QOB.dta')
 
-educ_promedio_qob <- df %>%
+
+
+# Calcular los promedios por trimestre
+tabla_promedios <- df %>%
   group_by(qob) %>%
   summarise(
-    promedio_educ = mean(educ, na.rm = TRUE),
-    n = n()
+    eduavg= round(mean(educ, na.rm = TRUE), 2),
+    lwageavg= round(mean(lwage, na.rm = TRUE), 3)
   )
 
-ggplot(educ_promedio_qob, aes(x = factor(qob), y = promedio_educ)) +
-  geom_col(fill = "steelblue") +
-  geom_text(aes(label = round(promedio_educ, 2)), vjust = -0.5) +
-  labs(
-    title = "Promedio de Años de Escolaridad por Trimestre de Nacimiento",
-    x = "Trimestre de Nacimiento (qob)",
-    y = "Años de escolaridad (promedio)"
-  ) +
-  coord_cartesian(ylim = c(11.5, 13.5)) +  # ajustá el rango según tus datos
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    axis.title = element_text(size = 12)
-  )
+
+
 #estad descriptiva
 summary(select(df, educ, lwage, age, ageq, ageqsq, race, married, smsa, qob))
 
@@ -104,7 +95,7 @@ Modelofirst <- lm(educ ~ Z1 + Z2 + Z3 + ageq + ageqsq + race + married + smsa, d
 summary(Modelofirst)
 data_filtrado$educ_hat <- Modelofirst$fitted.values
 
-stargazer(Modelo, type = "latex",
+stargazer(Modelofirst, type = "latex",
           title = "Regresión por MCO: Educación por mes de nacimiento",
           dep.var.labels = "Años de educación",
           covariate.labels = c("Primer Trimestre (dummy)", "Segundo Trimestre (dummy)", "Tercer Trimestre (dummy)", "Edad (trimestres)", "Edad al cuadrado",
@@ -119,7 +110,7 @@ stargazer(Modelo, type = "latex",
 Modelosecond <- lm(lwage ~ educ_hat + ageq + ageqsq + race + married + smsa, data = data_filtrado)
  summary(Modelosecond)
 
-stargazer(Modelo, type = "latex",
+stargazer(Modelosecond, type = "latex",
           title = "Regresión por MCO: Retornos a la educación",
           dep.var.labels = "Logaritmo del salario mensual",
           covariate.labels = c("Años de educación", "Edad (trimestres)", "Edad al cuadrado",
