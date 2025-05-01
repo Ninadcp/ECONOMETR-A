@@ -1,9 +1,17 @@
 #install.packages('haven')
 #install.packages('summarytools')
 #install.packages("ggplot2") 
+#install.packages("AER")
+#install.packages("car")
+#install.packages("xtable")
 #limpio entorno
 rm(list=ls()) 
 #librerías necesarias
+
+
+library(AER)
+library(car)
+library(xtable)
 library(haven)
 library(readr)
 library(dplyr)
@@ -76,8 +84,8 @@ educ_iv_reg <- lm(educ ~ Z1 + Z2 + Z3, data = data_filtrado)
 summary(educ_iv_reg)
 
 # Test F 
-anova(educ_iv_reg)
-
+wald_result <-linearHypothesis(educ_iv_reg, c("Z1 = 0", "Z2 = 0", "Z3 = 0"))
+xtable(wald_result)
 stargazer(educ_iv_reg,
           type = "latex",
           title = "Regresión de educación sobre los instrumentos (trimestres de nacimiento)",
