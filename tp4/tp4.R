@@ -34,33 +34,56 @@ setwd("C:/Users/sebib/Documents/GitHub/ECONOMETR-A/tp4")
 df <- read_dta("cuarto_trim_2019.dta")
 head(df)
 
+
+# Vemos quÃ© tipo de variables hay
+str(df)
+
+
+
 #--------------------------------------Punto A----------------------------------
 
+# Proporción de deserción
+table(df$deserta) / nrow(df)
 
-# Filtro la muestra: 13-19 años, solteros (CH07==1), vive con al menos un padre (PP07H==1 o 2),
-# y primaria completa o más (NIVEL_ED >= 2)
-df_filtrado <- df %>%
-  filter(edad >= 13 & edad <= 19,
-         CH07 == 1,
-         PP07H %in% c(1, 2),
-         NIVEL_ED >= 2)
 
-# Ver proporción de deserción
-table(df_filtrado$deserta) / nrow(df_filtrado)
 
-# Estadísticas descriptivas generales
-summary(select(df_filtrado, edad, mujer, hermanos, ingresos_familiares, jmujer, educ_jefe, miembros))
 
-# Comparación por grupo: desertó vs no desertó
-df_filtrado %>%
-  group_by(deserta) %>%
-  summarise(
-    edad_prom = mean(edad, na.rm = TRUE),
-    prop_mujer = mean(mujer, na.rm = TRUE),
-    hermanos_prom = mean(hermanos, na.rm = TRUE),
-    ingreso_prom = mean(ingresos_familiares, na.rm = TRUE),
-    prop_jmujer = mean(jmujer, na.rm = TRUE),
-    educ_jefe_prom = mean(educ_jefe, na.rm = TRUE),
-    miembros_prom = mean(miembros, na.rm = TRUE)
-  )
+#variables relevantes
+#edad, mujer, jmujer, educjefe, mimebros, ch11 carac del estab educativo, estado de act
+
+# Me quedo solo con las variables necesarias
+
+df$privado <- ifelse(df$ch11 == 2, 1,
+                     ifelse(df$ch11 == 1, 0, NA))
+
+df <- df %>%
+  select(deserta, edad, mujer, jmujer, educ_jefe, miembros, ch11, estado)
+str(df)
+df <- df %>%
+  filter(estado != 0, estado != 4)
+  
+
+
+#Borramos valores faltantes de las variables que vamos a usar (antes eliminen las variables que no usen del dataset!)
+df = na.omit(df)
+summary(df)
+df$estado <- factor(df$estado, labels = c("Ocupado", "Desocupado", "Inactivo"))
+
+
+mydata$educ_jefe <- factor(mydata$educ_jefe, labels = c("Primaria", "Secundaria", "Universitaria"))
+
+
+
+#--------------------------------------Punto B----------------------------------
+
+
+
+
+#--------------------------------------Punto C----------------------------------
+
+
+#--------------------------------------Punto D----------------------------------
+
+
+#--------------------------------------Punto E----------------------------------
 
