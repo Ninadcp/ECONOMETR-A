@@ -33,7 +33,7 @@ library(ggplot2)
 library(dplyr)
 
 
-setwd("C:/Users/sebib/Documents/GitHub/ECONOMETR-A/tp4")
+setwd("C:/Users/CARLOS/OneDrive/Documentos/GitHub/ECONOMETR-A/tp4")
 
 
 
@@ -59,8 +59,7 @@ df %>%
   group_by(deserta) %>%
   summarise(
     edad = mean(edad, na.rm = TRUE),
-    miembros = mean(miembros, na.rm = TRUE),
-    ln_ing = mean(ln_ing, na.rm = TRUE)
+    miembros = mean(miembros, na.rm = TRUE)
   )
 
 
@@ -87,15 +86,12 @@ df <- df %>%
 #Borramos valores faltantes de las variables y agregamos labels
 df = na.omit(df)
 summary(df)
-df$estado <- factor(df$estado, labels = c("Ocupado", "Desocupado", "Inactivo"))
+
+df$estado <- factor(df$estado)
 
 
-df$educ_jefe <- factor(df$educ_jefe,
-                           levels = 1:9,
-                           labels = c("Jardín/preescolar", "Primario", "EGB", "Secundario",
-                                      "Polimodal", "Terciario", "Universitario",
-                                      "Posgrado universitario", "Educación especial (discapacitado)")
-)
+df$educ_jefe <- factor(df$educ_jefe)
+
 
 
 
@@ -116,8 +112,6 @@ stargazer(modelo_probit,
           type = "latex",
           title = "Modelo Probit para la probabilidad de deserción escolar",
           dep.var.labels = "Deserta el secundario",
-          covariate.labels = c("Edad", "Mujer", "Jefe mujer", "Educ. jefe", 
-                               "Miembros hogar", "Colegio privado", "Condición de actividad"),
           omit.stat = c("ll", "aic"),
           no.space = TRUE,
           digits = 3)
@@ -136,7 +130,7 @@ stargazer(marginal_media$mfxest, type = "latex",
 
 #No entiendo esto que pide el tp: comparen con efectos marginales calculados en otros puntos que considere relevantes
 
-# Tomi hace esto: Average Marginal Effect: evalÃºa en todos los puntos y saca el promedio
+#Tomi hace esto: Average Marginal Effect: evalÃºa en todos los puntos y saca el promedio
 summary(margins(modelo_probit)) # ver "at"
 ?margins
 
@@ -165,7 +159,7 @@ stargazer(modelo_lineal,
 
 # creamos la variable, pero antes filtramos a los ingresos per capita familiar mayores a cero
 
-df <- df %>% filter(ingreso_per_capita > 0)
+df$ingreso_per_capita[df$ingreso_per_capita < 1] <- 1
 
 df$ln_ing <- log(df$ingreso_per_capita)
 
