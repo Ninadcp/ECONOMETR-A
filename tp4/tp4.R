@@ -166,7 +166,7 @@ df$ln_ing <- log(df$ingreso_per_capita)
 #--------------------------------------Punto 6----------------------------------
 
 #Reestimamos el modelo
-probit_ipcf <- glm(deserta ~ ln_ing + edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
+probit_ipcf <- glm(deserta ~ ln_ing+edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
                           family = binomial(link = "probit"), data = df)
 
 summary(probit_ipcf)
@@ -179,54 +179,64 @@ stargazer(probit_ipcf,
           type = "latex",
           title = "Modelo Probit con ln(ingreso per cápita)",
           dep.var.labels = "Deserta el secundario",
-          covariate.labels = c("Log ingreso per cápita", "Edad", "Mujer", "Jefe mujer", 
-                               "Educ. jefe", "Miembros hogar", "Colegio privado", 
-                               "Condición de actividad"),
           omit.stat = c("ll", "aic"),
           digits = 3,
           no.space = TRUE)
 
 #grafico?
+newvalues1 <- with(df, data.frame(edad=median(edad) , mujer=mujer , jmujer=jmujer , educ_jefe="4"
+                                 , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
+df[, "prediction"] <-predict(probit_ipcf, newvalues1, type = "response")
+
+ggplot(df) +
+  geom_line( aes(x = ln_ing, y = prediction,), size = 1.5) +
+  facet_wrap(~mujer) +
+  theme_bw()
+
+ggplot(df) +
+  geom_line( aes(x = ln_ing, y = prediction), size = 1.5) +
+  facet_wrap(~jmujer) +
+  theme_bw()
 
 
 #CHAT me tiró esto: que dicen? 
 
 # Paso 1: Crear secuencia de ln_ing
-ln_ing_seq <- seq(min(df$ln_ing, na.rm = TRUE),
-                  max(df$ln_ing, na.rm = TRUE),
-                  length.out = 100)
+#ln_ing_seq <- seq(min(df$ln_ing, na.rm = TRUE),
+             #     max(df$ln_ing, na.rm = TRUE),
+             #     length.out = 100)
 
 # Paso 2: Usamos una fila real del df para asegurar tipos y niveles correctos
-tipo_base <- df[1, ]
-tipo_varon <- tipo_base[rep(1, 100), ]
+#tipo_base <- df[1, ]
+#tipo_varon <- tipo_base[rep(1, 100), ]
 
 # Paso 3: Fijamos valores del individuo tipo
-tipo_varon$ln_ing <- ln_ing_seq
-tipo_varon$edad <- mean(df$edad, na.rm = TRUE)
-tipo_varon$mujer <- factor("Varón", levels = levels(df$mujer))
-tipo_varon$jmujer <- factor("Hombre", levels = levels(df$jmujer))
-tipo_varon$educ_jefe <- factor("Secundario", levels = levels(df$educ_jefe))
-tipo_varon$miembros <- mean(df$miembros, na.rm = TRUE)
-tipo_varon$ch11 <- factor("Público", levels = levels(df$ch11))
-tipo_varon$estado <- factor("Ocupado", levels = levels(df$estado))
+#tipo_varon$ln_ing <- ln_ing_seq
+#tipo_varon$edad <- mean(df$edad, na.rm = TRUE)
+#tipo_varon$mujer <- factor("Varón", levels = levels(df$mujer))
+#tipo_varon$jmujer <- factor("Hombre", levels = levels(df$jmujer))
+#tipo_varon$educ_jefe <- factor("Secundario", levels = levels(df$educ_jefe))
+#tipo_varon$miembros <- mean(df$miembros, na.rm = TRUE)
+#tipo_varon$ch11 <- factor("Público", levels = levels(df$ch11))
+#tipo_varon$estado <- factor("Ocupado", levels = levels(df$estado))
 
 # Paso 4: Creamos tipo_mujer cambiando solo el sexo
-tipo_mujer <- tipo_varon
-tipo_mujer$mujer <- factor("Mujer", levels = levels(df$mujer))
+#tipo_mujer <- tipo_varon
+#tipo_mujer$mujer <- factor("Mujer", levels = levels(df$mujer))
 
 # Paso 5: Predecimos probabilidades
-tipo_varon$prob <- predict(probit_ipcf, newdata = tipo_varon, type = "response")
-tipo_mujer$prob <- predict(probit_ipcf, newdata = tipo_mujer, type = "response")
+#tipo_varon$prob <- predict(probit_ipcf, newdata = tipo_varon, type = "response")
+#tipo_mujer$prob <- predict(probit_ipcf, newdata = tipo_mujer, type = "response")
 
-tipo_varon$sexo <- "Varón"
-tipo_mujer$sexo <- "Mujer"
-df_plot <- rbind(tipo_varon, tipo_mujer)
+#tipo_varon$sexo <- "Varón"
+#tipo_mujer$sexo <- "Mujer"
+#df_plot <- rbind(tipo_varon, tipo_mujer)
 
 # Paso 7: Gráfico
-ggplot(df_plot, aes(x = ln_ing, y = prob, color = sexo)) +
-  geom_line(size = 1.2) +
-  labs(title = "Probabilidad de deserción según ln(ingreso per cápita) y sexo",
-       x = "Logaritmo del ingreso per cápita",
-       y = "Probabilidad estimada de deserción") +
-  theme_minimal()
+#ggplot(df_plot, aes(x = ln_ing, y = prob, color = sexo)) +
+# geom_line(size = 1.2) +
+# labs(title = "Probabilidad de deserción según ln(ingreso per cápita) y sexo",
+      #      x = "Logaritmo del ingreso per cápita",
+       #      y = "Probabilidad estimada de deserción") +
+  # theme_minimal()
 
