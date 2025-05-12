@@ -67,7 +67,7 @@ df %>%
 
 
 #variables relevantes
-#edad, mujer, jmujer, educjefe, mimebros, ch11 carac del estab educativo, estado de act
+#ingreso_per_capita, edad, mujer, jmujer, educjefe, mimebros, ch11 carac del estab educativo, estado de act
 
 # Transformamos la variable que indica si la escuela es pública o privada en una dummy
 
@@ -99,7 +99,7 @@ df$educ_jefe <- factor(df$educ_jefe)
 #--------------------------------------Punto 2----------------------------------
 
 # Estimación del modelo probit 
-modelo_probit <- glm(deserta ~ edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
+modelo_probit <- glm(deserta ~ ingreso_per_capita + edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
                      family = binomial(link = "probit"), data = df)
 
 # resumen
@@ -118,27 +118,38 @@ stargazer(modelo_probit,
 
 #--------------------------------------Punto 3----------------------------------
 #Efectos marginales en las medias
-marginal_media <- probitmfx(deserta ~ edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
+marginal_media <- probitmfx(deserta ~ ingreso_per_capita + edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
                             data = df, atmean = TRUE, robust = TRUE)
 
 marginal_media
 
-#latex
+#latex efectos marginales en las medias
 library(stargazer)
 stargazer(marginal_media$mfxest, type = "latex",
           title = "Efectos marginales en la media")
 
-#No entiendo esto que pide el tp: comparen con efectos marginales calculados en otros puntos que considere relevantes
+# Tomi hace esto: Average Marginal Effect: evalÃºa en todos los puntos y saca el promedio
 
-#Tomi hace esto: Average Marginal Effect: evalÃºa en todos los puntos y saca el promedio
-summary(margins(modelo_probit)) # ver "at"
-?margins
+#pero antes saco el nivel educativo del jefe =  jardín por que no hay obs ahí y me tira error
+df <- droplevels(df)
+
+
+marginal_promedio <- margins(modelo_probit)
+summary(marginal_promedio)
+#latex efectos promedio
+library(stargazer)
+
+stargazer(as.data.frame(summary(marginal_promedio)),
+          type = "latex",
+          title = "Efectos marginales promedio",
+          digits = 4,
+          summary = FALSE)
 
 
 #--------------------------------------Punto 4----------------------------------
 #modelo lineal de probabilidad - mco a la deserción
 
-modelo_lineal <- lm(deserta ~ edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado, data = df)
+modelo_lineal <- lm(deserta ~ ingreso_per_capita + edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado, data = df)
 summary(modelo_lineal)
 
 
@@ -148,8 +159,6 @@ stargazer(modelo_lineal,
           type = "latex",
           title = "Modelo Lineal de Probabilidad para deserción escolar",
           dep.var.labels = "Deserta el secundario",
-          covariate.labels = c("Edad", "Mujer", "Jefe mujer", "Educ. jefe", 
-                               "Miembros hogar", "Colegio privado", "Condición de actividad"),
           omit.stat = c("f", "ser", "adj.rsq"),
           no.space = TRUE,
           digits = 3)
@@ -184,59 +193,31 @@ stargazer(probit_ipcf,
           no.space = TRUE)
 
 #grafico?
-newvalues1 <- with(df, data.frame(edad=median(edad) , mujer=mujer , jmujer=jmujer , educ_jefe="4"
+newvalueshjh <- with(df, data.frame(edad=median(edad) , mujer=0 , jmujer=0 , educ_jefe="4"
                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
-df[, "prediction"] <-predict(probit_ipcf, newvalues1, type = "response")
+newvalueshjm <- with(df, data.frame(edad=median(edad) , mujer=0 , jmujer=1 , educ_jefe="4"
+                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
+newvaluesmjh <- with(df, data.frame(edad=median(edad) , mujer=1 , jmujer=0 , educ_jefe="4"
+                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
+newvaluesmjm <- with(df, data.frame(edad=median(edad) , mujer=1 , jmujer=1 , educ_jefe="4"
+                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
+df[, "predictionhjh"] <-predict(probit_ipcf, newvalueshjh, type = "response")
+df[, "predictionhjm"] <-predict(probit_ipcf, newvalueshjm, type = "response")
+df[, "predictionmjh"] <-predict(probit_ipcf, newvaluesmjh, type = "response")
+df[, "predictionmjm"] <-predict(probit_ipcf, newvaluesmjm, type = "response")
 
 ggplot(df) +
-  geom_line( aes(x = ln_ing, y = prediction,), size = 1.5) +
-  facet_wrap(~mujer) +
-  theme_bw()
+  geom_line( aes(x = ln_ing, y = predictionhjh,), size = 1.5)  +
+  theme_bw() +  ylim(0.015, 0.035)
 
 ggplot(df) +
-  geom_line( aes(x = ln_ing, y = prediction), size = 1.5) +
-  facet_wrap(~jmujer) +
-  theme_bw()
+  geom_line( aes(x = ln_ing, y = predictionhjm,), size = 1.5)  +
+  theme_bw() +  ylim(0.015, 0.035)
 
+ggplot(df) +
+  geom_line( aes(x = ln_ing, y = predictionmjh,), size = 1.5)  +
+  theme_bw() +  ylim(0.015, 0.035)
 
-#CHAT me tiró esto: que dicen? 
-
-# Paso 1: Crear secuencia de ln_ing
-#ln_ing_seq <- seq(min(df$ln_ing, na.rm = TRUE),
-             #     max(df$ln_ing, na.rm = TRUE),
-             #     length.out = 100)
-
-# Paso 2: Usamos una fila real del df para asegurar tipos y niveles correctos
-#tipo_base <- df[1, ]
-#tipo_varon <- tipo_base[rep(1, 100), ]
-
-# Paso 3: Fijamos valores del individuo tipo
-#tipo_varon$ln_ing <- ln_ing_seq
-#tipo_varon$edad <- mean(df$edad, na.rm = TRUE)
-#tipo_varon$mujer <- factor("Varón", levels = levels(df$mujer))
-#tipo_varon$jmujer <- factor("Hombre", levels = levels(df$jmujer))
-#tipo_varon$educ_jefe <- factor("Secundario", levels = levels(df$educ_jefe))
-#tipo_varon$miembros <- mean(df$miembros, na.rm = TRUE)
-#tipo_varon$ch11 <- factor("Público", levels = levels(df$ch11))
-#tipo_varon$estado <- factor("Ocupado", levels = levels(df$estado))
-
-# Paso 4: Creamos tipo_mujer cambiando solo el sexo
-#tipo_mujer <- tipo_varon
-#tipo_mujer$mujer <- factor("Mujer", levels = levels(df$mujer))
-
-# Paso 5: Predecimos probabilidades
-#tipo_varon$prob <- predict(probit_ipcf, newdata = tipo_varon, type = "response")
-#tipo_mujer$prob <- predict(probit_ipcf, newdata = tipo_mujer, type = "response")
-
-#tipo_varon$sexo <- "Varón"
-#tipo_mujer$sexo <- "Mujer"
-#df_plot <- rbind(tipo_varon, tipo_mujer)
-
-# Paso 7: Gráfico
-#ggplot(df_plot, aes(x = ln_ing, y = prob, color = sexo)) +
-# geom_line(size = 1.2) +
-# labs(title = "Probabilidad de deserción según ln(ingreso per cápita) y sexo",
-      #      x = "Logaritmo del ingreso per cápita",
-       #      y = "Probabilidad estimada de deserción") +
-  # theme_minimal()
-
+ggplot(df) +
+  geom_line( aes(x = ln_ing, y = predictionmjm,), size = 1.5)  +
+  theme_bw() +  ylim(0.015, 0.035)
