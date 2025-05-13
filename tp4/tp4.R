@@ -208,16 +208,20 @@ df[, "predictionmjm"] <-predict(probit_ipcf, newvaluesmjm, type = "response")
 
 ggplot(df) +
   geom_line( aes(x = ln_ing, y = predictionhjh,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035)
+  theme_bw() +  ylim(0.015, 0.035) +
+  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
 
 ggplot(df) +
   geom_line( aes(x = ln_ing, y = predictionhjm,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035)
+  theme_bw() +  ylim(0.015, 0.035) +
+  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
 
 ggplot(df) +
   geom_line( aes(x = ln_ing, y = predictionmjh,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035)
+  theme_bw() +  ylim(0.015, 0.035) +
+  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
 
 ggplot(df) +
   geom_line( aes(x = ln_ing, y = predictionmjm,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035)
+  theme_bw() +  ylim(0.015, 0.035) +
+  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
