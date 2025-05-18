@@ -10,67 +10,47 @@
 #limpio entorno
 rm(list=ls()) 
 #librerías necesarias
-
-
 library(AER)
 library(car)
 library(xtable)
 library(haven)
-
 library(mfx) 
 library(margins) 
-
 library(readr)
-library(dplyr)
-library(haven)
-library(dplyr)
 library(ggplot2)
 library(stargazer)
 library(plm)
 library(summarytools)
 library(rlang)
-library(ggplot2)
 library(dplyr)
+library(viridis)
+library(scales)
 
-
-setwd("C:/Users/CARLOS/OneDrive/Documentos/GitHub/ECONOMETR-A/tp4")
-
-
+#setwd("C:/Users/CARLOS/OneDrive/Documentos/GitHub/ECONOMETR-A/tp4")
+setwd("/Users/ninadicostanzopereira/Desktop/ECONOMETR-A/tp4")
 
 #importo la base d datos
 df <- read_dta("cuarto_trim_2019.dta")
 head(df)
 
-
 # Vemos que tipo de variables hay
 str(df)
-
-
-
 #--------------------------------------Punto 1----------------------------------
 
 # Proporción de deserción
 table(df$deserta) / nrow(df)
 
-
 #comparo los dos grupos veo solo log del ipcf y edad
-
 df %>%
   group_by(deserta) %>%
   summarise(
     edad = mean(edad, na.rm = TRUE),
     miembros = mean(miembros, na.rm = TRUE)
   )
-
-
-
-
-
 #variables relevantes
 #ingreso_per_capita, edad, mujer, jmujer, educjefe, mimebros, ch11 carac del estab educativo, estado de act
 
 # Transformamos la variable que indica si la escuela es pública o privada en una dummy
-
 df$privado <- ifelse(df$ch11 == 2, 1,
                      ifelse(df$ch11 == 1, 0, NA))
 
@@ -80,21 +60,13 @@ df <- df %>% dplyr::select(deserta, edad, mujer, jmujer, educ_jefe, miembros, ch
 str(df)
 df <- df %>%
   filter(estado != 0, estado != 4)
-  
-
 
 #Borramos valores faltantes de las variables y agregamos labels
 df = na.omit(df)
 summary(df)
 
 df$estado <- factor(df$estado)
-
-
 df$educ_jefe <- factor(df$educ_jefe)
-
-
-
-
 
 #--------------------------------------Punto 2----------------------------------
 
@@ -105,9 +77,7 @@ modelo_probit <- glm(deserta ~ ingreso_per_capita + edad + mujer + jmujer + educ
 # resumen
 summary(modelo_probit)
 
-
 # código latex
-
 stargazer(modelo_probit, 
           type = "latex",
           title = "Modelo Probit para la probabilidad de deserción escolar",
@@ -133,7 +103,6 @@ stargazer(marginal_media$mfxest, type = "latex",
 #pero antes saco el nivel educativo del jefe =  jardín por que no hay obs ahí y me tira error
 df <- droplevels(df)
 
-
 marginal_promedio <- margins(modelo_probit)
 summary(marginal_promedio)
 #latex efectos promedio
@@ -145,16 +114,13 @@ stargazer(as.data.frame(summary(marginal_promedio)),
           digits = 4,
           summary = FALSE)
 
-
 #--------------------------------------Punto 4----------------------------------
 #modelo lineal de probabilidad - mco a la deserción
 
 modelo_lineal <- lm(deserta ~ ingreso_per_capita + edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado, data = df)
 summary(modelo_lineal)
 
-
 #latex
-
 stargazer(modelo_lineal,
           type = "latex",
           title = "Modelo Lineal de Probabilidad para deserción escolar",
@@ -163,65 +129,109 @@ stargazer(modelo_lineal,
           no.space = TRUE,
           digits = 3)
 
-
 #--------------------------------------Punto 5----------------------------------
-
 # creamos la variable, pero antes filtramos a los ingresos per capita familiar mayores a cero
 
 df$ingreso_per_capita[df$ingreso_per_capita < 1] <- 1
-
 df$ln_ing <- log(df$ingreso_per_capita)
 
 #--------------------------------------Punto 6----------------------------------
+modelo_probit6 <- glm(
+  deserta ~ ln_ing + mujer + jmujer,
+  family = binomial(link = "probit"),
+  data = df
+)
 
-#Reestimamos el modelo
-probit_ipcf <- glm(deserta ~ ln_ing+edad + mujer + jmujer + educ_jefe + miembros + ch11 + estado,
-                          family = binomial(link = "probit"), data = df)
+grilla_sexo <- expand.grid(
+  ln_ing = seq(min(df$ln_ing, na.rm = TRUE),
+               max(df$ln_ing, na.rm = TRUE),
+               length.out = 100),
+  mujer  = c(0, 1),   # 0 = Hombre, 1 = Mujer
+  jmujer = 0          # Jefe hombre
+)
 
-summary(probit_ipcf)
+# Predecir
+grilla_sexo$prob_desercion <- predict(modelo_probit6, newdata = grilla_sexo, type = "response")
 
-#latex
+# Etiquetas
+grilla_sexo$mujer_factor <- factor(grilla_sexo$mujer, levels = c(0, 1), labels = c("Hombre", "Mujer"))
 
-library(stargazer)
+# Gráfico por sexo
+grafico_sexo <- ggplot(grilla_sexo, aes(x = ln_ing, y = prob_desercion, color = mujer_factor, linetype = mujer_factor)) +
+  geom_line(size = 0.9) +
+  scale_color_manual(values = c("black", "gray40")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.05, 0.15)) +
+  labs(
+    title    = "Probabilidad estimada de deserción escolar",
+    subtitle = "Comparación por sexo del estudiante (hogares con jefe hombre)",
+    x        = "Logaritmo del ingreso per cápita",
+    y        = "Probabilidad de deserción",
+    color    = "Sexo del estudiante",
+    linetype = "Sexo del estudiante"
+  ) +
+  theme_classic(base_size = 10) +
+  theme(
+    plot.title = element_text(face = "bold", size = 11, hjust = 0),
+    plot.subtitle = element_text(size = 9, hjust = 0),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold")
+  )
 
-stargazer(probit_ipcf,
-          type = "latex",
-          title = "Modelo Probit con ln(ingreso per cápita)",
-          dep.var.labels = "Deserta el secundario",
-          omit.stat = c("ll", "aic"),
-          digits = 3,
-          no.space = TRUE)
+grilla_jefatura <- expand.grid(
+  ln_ing = seq(min(df$ln_ing, na.rm = TRUE),
+               max(df$ln_ing, na.rm = TRUE),
+               length.out = 100),
+  mujer  = 1,         # mujer fijo
+  jmujer = c(0, 1)    # Jefe hombre (0) y jefa mujer (1)
+)
 
-#grafico?
-newvalueshjh <- with(df, data.frame(edad=median(edad) , mujer=0 , jmujer=0 , educ_jefe="4"
-                                 , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
-newvalueshjm <- with(df, data.frame(edad=median(edad) , mujer=0 , jmujer=1 , educ_jefe="4"
-                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
-newvaluesmjh <- with(df, data.frame(edad=median(edad) , mujer=1 , jmujer=0 , educ_jefe="4"
-                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
-newvaluesmjm <- with(df, data.frame(edad=median(edad) , mujer=1 , jmujer=1 , educ_jefe="4"
-                                  , miembros=median(miembros) , ch11=median(ch11) , estado="2", ln_ing=ln_ing))
-df[, "predictionhjh"] <-predict(probit_ipcf, newvalueshjh, type = "response")
-df[, "predictionhjm"] <-predict(probit_ipcf, newvalueshjm, type = "response")
-df[, "predictionmjh"] <-predict(probit_ipcf, newvaluesmjh, type = "response")
-df[, "predictionmjm"] <-predict(probit_ipcf, newvaluesmjm, type = "response")
+# Predecir
+grilla_jefatura$prob_desercion <- predict(modelo_probit6, newdata = grilla_jefatura, type = "response")
 
-ggplot(df) +
-  geom_line( aes(x = ln_ing, y = predictionhjh,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035) +
-  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
+# Etiquetas
+grilla_jefatura$jmujer_factor <- factor(grilla_jefatura$jmujer, levels = c(0, 1), labels = c("Jefe hombre", "Jefa mujer"))
 
-ggplot(df) +
-  geom_line( aes(x = ln_ing, y = predictionhjm,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035) +
-  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
+# Gráfico por jefatura
+grafico_jefatura <- ggplot(grilla_jefatura, aes(x = ln_ing, y = prob_desercion, color = jmujer_factor, linetype = jmujer_factor)) +
+  geom_line(size = 0.9) +
+  scale_color_manual(values = c("black", "gray40")) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.05, 0.15)) +
+  labs(
+    title    = "Probabilidad estimada de deserción escolar",
+    subtitle = "Comparación por condición del jefe de hogar (solo estudiantes mujeres)",
+    x        = "Logaritmo del ingreso per cápita",
+    y        = "Probabilidad de deserción",
+    color    = "Condición del jefe de hogar",
+    linetype = "Condición del jefe de hogar"
+  ) +
+  theme_classic(base_size = 10) +
+  theme(
+    plot.title = element_text(face = "bold", size = 11, hjust = 0),
+    plot.subtitle = element_text(size = 9, hjust = 0),
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold")
+  )
 
-ggplot(df) +
-  geom_line( aes(x = ln_ing, y = predictionmjh,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035) +
-  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
+# Mostrar gráficos
+print(grafico_sexo)
+print(grafico_jefatura)
+#ggsave
+ggsave(
+  filename = "TP_Punto_6_Desercion_Sexo.png",
+  plot = grafico_sexo,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+ggsave(
+  filename = "TP_Punto_6_Desercion_Jefatura.png",
+  plot = grafico_jefatura,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
 
-ggplot(df) +
-  geom_line( aes(x = ln_ing, y = predictionmjm,), size = 1.5)  +
-  theme_bw() +  ylim(0.015, 0.035) +
-  labs(x = "Logaritmo del ingreso per cápita", y = "Probabilidad predicha")
